@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import React from 'react';
-import Enzyme, {mount} from 'enzyme';
+import Enzyme, { mount } from 'enzyme';
 import omitBy from 'lodash/omitBy';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -13,6 +13,7 @@ import {
   ComponentWithAZeroChildren,
   ArrayRender,
   FalsyTruthyComponent,
+  FalsyTruthyNestedComponent
 } from './fixtures/pure-function';
 import {
   BasicClass,
@@ -20,10 +21,10 @@ import {
   ClassWithDirectPure,
   ClassWithDirectComponent,
   ClassWithNull,
-  ClassArrayRender,
+  ClassArrayRender
 } from './fixtures/class';
 
-Enzyme.configure({adapter: new Adapter()});
+Enzyme.configure({ adapter: new Adapter() });
 
 function WrapperComponent(props) {
   return <BasicPure {...props} />;
@@ -39,7 +40,7 @@ it('converts basic pure mount', () => {
   const mounted = mount(
     <BasicPure className="pure">
       <strong>Hello!</strong>
-    </BasicPure>,
+    </BasicPure>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -54,7 +55,7 @@ it('converts basic class mount', () => {
   const mounted = mount(
     <BasicClass className="class">
       <strong>Hello!</strong>
-    </BasicClass>,
+    </BasicClass>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -69,7 +70,7 @@ it('converts a class mount with a pure function in it', () => {
   const mounted = mount(
     <ClassWithPure className="class">
       <strong>Hello!</strong>
-    </ClassWithPure>,
+    </ClassWithPure>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -79,7 +80,7 @@ it('converts a class mount with a pure function in it as a direct child', () => 
   const mounted = mount(
     <ClassWithDirectPure className="class">
       <strong>Hello!</strong>
-    </ClassWithDirectPure>,
+    </ClassWithDirectPure>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -89,7 +90,7 @@ it('converts a class mount with a class component in it as a direct child', () =
   const mounted = mount(
     <ClassWithDirectComponent className="class">
       <strong>Hello!</strong>
-    </ClassWithDirectComponent>,
+    </ClassWithDirectComponent>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -122,7 +123,7 @@ it('outputs the key prop', () => {
     <ul>
       <li key={1} />
       <li key={2} />
-    </ul>,
+    </ul>
   );
   expect(mountToJson(mounted)).toMatchSnapshot();
 });
@@ -132,16 +133,16 @@ it('doesnt output the key prop when noKey option is passed', () => {
     <ul>
       <li key={1} />
       <li key={2} />
-    </ul>,
+    </ul>
   );
-  expect(mountToJson(mounted, {noKey: true})).toMatchSnapshot();
+  expect(mountToJson(mounted, { noKey: true })).toMatchSnapshot();
 });
 
 it('converts function components with render returning top level arrays', () => {
   const mounted = mount(
     <ArrayRender>
       <strong>Hello!</strong>
-    </ArrayRender>,
+    </ArrayRender>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -151,7 +152,7 @@ it('converts class components with render returning top level arrays', () => {
   const mounted = mount(
     <ClassArrayRender>
       <strong>Hello!</strong>
-    </ClassArrayRender>,
+    </ClassArrayRender>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -163,9 +164,9 @@ it('handles elements in prop arrays', () => {
       elements={[
         <BasicPure>
           <strong>Hello!</strong>
-        </BasicPure>,
+        </BasicPure>
       ]}
-    />,
+    />
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -183,10 +184,10 @@ it('handles elements in prop objects', () => {
         nestedElements: [
           <BasicPure>
             <strong>Hello again!</strong>
-          </BasicPure>,
-        ],
+          </BasicPure>
+        ]
       }}
-    />,
+    />
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -197,8 +198,8 @@ it('accepts a map option allowing to customize content', () => {
 
   expect(
     mountToJson(mounted, {
-      map: json => ({...json, children: ['Goodbye!']}),
-    }),
+      map: json => ({ ...json, children: ['Goodbye!'] })
+    })
   ).toMatchSnapshot();
 });
 
@@ -207,16 +208,16 @@ it('accepts a map option allowing to customize content of all nested components'
     <div randomlygeneratedkey={Date.now()} className="wrapper">
       <strong randomlygeneratedkey={Date.now()}>Hello!</strong>
       <strong className="strong2">Hello 2</strong>
-    </div>,
+    </div>
   );
 
   expect(
     mountToJson(mounted, {
       map: json => ({
         ...json,
-        props: omitBy(json.props, (val, key) => key === 'randomlygeneratedkey'),
-      }),
-    }),
+        props: omitBy(json.props, (val, key) => key === 'randomlygeneratedkey')
+      })
+    })
   ).toMatchSnapshot();
 });
 
@@ -228,7 +229,7 @@ it('can skip a component I dont want to see with the map option', () => {
         <li>Item 2</li>
       </ul>
       <strong>Hello 2</strong>
-    </div>,
+    </div>
   );
 
   expect(
@@ -238,8 +239,8 @@ it('can skip a component I dont want to see with the map option', () => {
           return null;
         }
         return json;
-      },
-    }),
+      }
+    })
   ).toMatchSnapshot();
 });
 
@@ -248,7 +249,7 @@ it('outputs the snapshot even with inline JSX conditions being falsy', () => {
     <div>
       <span>I am there</span>
       {false && <span>Issue</span>}
-    </div>,
+    </div>
   );
 
   expect(mountToJson(mounted)).toMatchSnapshot();
@@ -256,5 +257,10 @@ it('outputs the snapshot even with inline JSX conditions being falsy', () => {
 
 it('outputs an empty string when a component returns false', () => {
   const mounted = mount(<FalsyTruthyComponent foo={false} />);
+  expect(mountToJson(mounted)).toMatchSnapshot();
+});
+
+it('outputs an empty div when a child fragment has false as value', () => {
+  const mounted = mount(<FalsyTruthyNestedComponent foo={false} />);
   expect(mountToJson(mounted)).toMatchSnapshot();
 });

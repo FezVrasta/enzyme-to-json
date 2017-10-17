@@ -50,3 +50,7 @@ export function ArrayRender(props) {
 export const FalsyTruthyComponent = ({foo}) => {
   return foo && <div>Yep</div>;
 };
+
+export const FalsyTruthyNestedComponent = ({foo}) => {
+  return <div>{foo && 'Yep'}</div>;
+}
